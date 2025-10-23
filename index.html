@@ -1,0 +1,11 @@
+<!doctype html><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>18+</title>
+<style>body{margin:0;display:grid;min-height:100vh;place-items:center;background:#0b0c0f;color:#e5e7eb;font:16px system-ui} .card{max-width:520px;width:92vw;background:#111827;border:1px solid #1f2937;border-radius:14px;padding:20px;text-align:center} h1{margin:0 0 8px} p{opacity:.8;margin:0 0 14px} .row{display:flex;gap:10px} button{flex:1;padding:12px;border:0;border-radius:10px;font-weight:700;cursor:pointer} .yes{background:#10b981;color:#071} .no{background:#374151;color:#e5e7eb}</style>
+<div class="card"><h1>Are you 18 or older?</h1><p>You must confirm your age to continue.</p><div class="row"><button class="no" id="no">No</button><button class="yes" id="yes">Yes</button></div></div>
+<script>
+  const p=new URLSearchParams(location.search);
+  const DEST=p.get('to')||'https://example.com';
+  if(document.cookie.includes('age_ok=1')) location.replace(DEST);
+  document.getElementById('yes').onclick=()=>{document.cookie="age_ok=1; Path=/; Max-Age="+(90*24*3600)+"; SameSite=Lax";location.replace(DEST)};
+  document.getElementById('no').onclick=()=>location.href='https://google.com';
+</script>
