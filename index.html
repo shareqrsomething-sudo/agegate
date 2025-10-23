@@ -1,11 +1,66 @@
 <!doctype html><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>18+</title>
-<style>body{margin:0;display:grid;min-height:100vh;place-items:center;background:#0b0c0f;color:#e5e7eb;font:16px system-ui} .card{max-width:520px;width:92vw;background:#111827;border:1px solid #1f2937;border-radius:14px;padding:20px;text-align:center} h1{margin:0 0 8px} p{opacity:.8;margin:0 0 14px} .row{display:flex;gap:10px} button{flex:1;padding:12px;border:0;border-radius:10px;font-weight:700;cursor:pointer} .yes{background:#10b981;color:#071} .no{background:#374151;color:#e5e7eb}</style>
-<div class="card"><h1>Are you 18 or older?</h1><p>You must confirm your age to continue.</p><div class="row"><button class="no" id="no">No</button><button class="yes" id="yes">Yes</button></div></div>
+<style>
+  :root{--bg:#0b0c0f;--card:#111827;--mut:#9ca3af;--fg:#e5e7eb;--u:#4f46e5;--v:#10b981}
+  body{margin:0;display:grid;min-height:100vh;place-items:center;background:var(--bg);color:var(--fg);font:16px system-ui}
+  .card{max-width:560px;width:92vw;background:var(--card);border:1px solid #1f2937;border-radius:14px;padding:24px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+  h1{margin:0 0 10px;font-size:28px} p{opacity:.85;margin:0 0 16px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  button,a.btn{flex:1 1 180px;padding:12px;border:0;border-radius:10px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
+  .yes{background:#22c55e;color:#062} .no{background:#374151;color:#e5e7eb}
+  .upload{background:var(--u);color:#fff} .view{background:var(--v);color:#062}
+  .warn{color:#fbbf24;margin-top:12px;font-size:13px}
+  .hide{display:none}
+</style>
+
+<div id="gate" class="card">
+  <h1>Are you 18 or older?</h1>
+  <p>You must confirm your age to continue.</p>
+  <div class="row">
+    <button class="no" id="no">No</button>
+    <button class="yes" id="yes">Yes</button>
+  </div>
+  <div class="warn" id="w"></div>
+</div>
+
+<div id="chooser" class="card hide">
+  <h1>Choose an action</h1>
+  <p>Upload files or view the folder.</p>
+  <div class="row">
+    <a id="upl" class="btn upload" target="_blank" rel="noopener">Upload</a>
+    <a id="vw"  class="btn view"   target="_blank" rel="noopener">View</a>
+  </div>
+</div>
+
 <script>
-  const p=new URLSearchParams(location.search);
-  const DEST=p.get('to')||'https://example.com';
-  if(document.cookie.includes('age_ok=1')) location.replace(DEST);
-  document.getElementById('yes').onclick=()=>{document.cookie="age_ok=1; Path=/; Max-Age="+(90*24*3600)+"; SameSite=Lax";location.replace(DEST)};
-  document.getElementById('no').onclick=()=>location.href='https://google.com';
+const qs = new URLSearchParams(location.search);
+/* Support either a single redirect (?to=) OR a chooser (?upload=&view=) */
+const rawTo  = (qs.get('to')||qs.get('goto')||'').trim();
+const upLink = (qs.get('upload')||'').trim();
+const vwLink = (qs.get('view')||'').trim();
+
+function looksLikeUrl(u){ try{const x=new URL(u); return /^https?:$/.test(x.protocol);}catch{ return false; }}
+
+/* If already confirmed, go straight through */
+if (document.cookie.includes('age_ok=1')) alreadyOK();
+
+document.getElementById('yes').onclick = () => {
+  document.cookie = "age_ok=1; Path=/; Max-Age="+(90*24*3600)+"; SameSite=Lax";
+  alreadyOK();
+};
+
+document.getElementById('no').onclick = () => location.href="https://google.com";
+
+function alreadyOK(){
+  /* If ?upload & ?view are present, show chooser; otherwise redirect to ?to */
+  if (looksLikeUrl(upLink) && looksLikeUrl(vwLink)) {
+    document.getElementById('gate').classList.add('hide');
+    document.getElementById('chooser').classList.remove('hide');
+    document.getElementById('upl').href = upLink;
+    document.getElementById('vw').href  = vwLink;
+  } else {
+    const dest = looksLikeUrl(rawTo) ? rawTo : 'https://google.com';
+    location.replace(dest);
+  }
+}
 </script>
